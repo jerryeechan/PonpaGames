@@ -9,6 +9,15 @@
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
   <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght@400;500;700;900&family=Space+Grotesk:wght@500;700&display=swap" rel="stylesheet" />
   <link rel="stylesheet" href="styles.css" />
+  <script>
+    // 在繪製前套用主題，避免閃爍。優先採用使用者選擇，否則跟隨系統設定。
+    (function () {
+      var saved = localStorage.getItem("theme");
+      var sysDark = window.matchMedia("(prefers-color-scheme: dark)").matches;
+      var theme = saved || (sysDark ? "dark" : "light");
+      document.documentElement.setAttribute("data-theme", theme);
+    })();
+  </script>
 </head>
 <body>
   <header class="site-header">
@@ -21,13 +30,16 @@
       <a href="#services">服務</a>
       <a href="#founder">團隊</a>
       <a href="#contact">聯絡</a>
+      <button id="theme-toggle" class="theme-toggle" type="button" aria-label="切換深色／淺色主題">
+        <span class="theme-dot" aria-hidden="true"></span>
+        <span class="theme-label"></span>
+      </button>
     </nav>
   </header>
 
   <main id="top">
     <!-- Hero -->
     <section class="hero">
-      <div class="hero-bg" aria-hidden="true"></div>
       <div class="hero-inner">
         <p class="eyebrow">人很少，野心很大</p>
         <h1>做一款<span class="hl">很酷</span>的遊戲，<br />然後讓更多人也做得出來</h1>
@@ -70,22 +82,22 @@
       </div>
       <div class="cards">
         <article class="card">
-          <div class="card-icon">🎮</div>
+          <span class="card-num">01</span>
           <h3>遊戲開發</h3>
           <p>從玩法設計、程式架構、技術美術到主機移植，提供完整的獨立遊戲製作能量。</p>
         </article>
         <article class="card">
-          <div class="card-icon">🧪</div>
+          <span class="card-num">02</span>
           <h3>原型與驗證</h3>
           <p>協助快速打造可遊玩的原型，依遊戲類型選擇合適的測試方法，盡早驗證核心樂趣。</p>
         </article>
         <article class="card">
-          <div class="card-icon">🧭</div>
+          <span class="card-num">03</span>
           <h3>製作顧問</h3>
           <p>針對製程規劃、開發心態與常見陷阱提供建議，陪伴團隊度過早期開發的關鍵階段。</p>
         </article>
         <article class="card">
-          <div class="card-icon">🛠️</div>
+          <span class="card-num">04</span>
           <h3>工具與技術</h3>
           <p>打造客製化的介面工具與開發流程，讓團隊把時間花在真正重要的創作上。</p>
         </article>
@@ -145,6 +157,32 @@
 
   <script>
     document.getElementById('year').textContent = new Date().getFullYear();
+
+    // 主題切換
+    (function () {
+      var root = document.documentElement;
+      var btn = document.getElementById('theme-toggle');
+      var label = btn.querySelector('.theme-label');
+      function render() {
+        var isDark = root.getAttribute('data-theme') === 'dark';
+        label.textContent = isDark ? '淺色' : '深色';
+      }
+      render();
+      btn.addEventListener('click', function () {
+        var next = root.getAttribute('data-theme') === 'dark' ? 'light' : 'dark';
+        root.setAttribute('data-theme', next);
+        localStorage.setItem('theme', next);
+        render();
+      });
+      // 若使用者尚未手動選擇，跟隨系統即時切換
+      window.matchMedia('(prefers-color-scheme: dark)').addEventListener('change', function (e) {
+        if (!localStorage.getItem('theme')) {
+          root.setAttribute('data-theme', e.matches ? 'dark' : 'light');
+          render();
+        }
+      });
+    })();
+
     // 平滑捲動
     document.querySelectorAll('a[href^="#"]').forEach(function (a) {
       a.addEventListener('click', function (e) {
